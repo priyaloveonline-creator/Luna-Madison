@@ -96,10 +96,36 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 .page-sub{font-size:12px;color:var(--ink-soft);margin-top:6px;line-height:1.5;max-width:38ch}
 
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
+@media(min-width:640px){.grid2{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}}
 .card{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card)}
-.card-vis{height:100px;background:var(--sage-tint);display:grid;place-items:center;font-size:26px}
+.card-vis{height:100px;background:var(--sage-tint);display:grid;place-items:center;font-size:26px;position:relative;overflow:hidden}
+.card-vis img{width:100%;height:100%;object-fit:cover;display:block}
 .card-cap{padding:8px 10px;font-size:11px;font-weight:600;color:var(--ink-soft)}
 .card-body{padding:12px}
+.badge-new{position:absolute;top:8px;left:8px;background:var(--ink);color:#fff;font-size:9px;font-weight:700;letter-spacing:.03em;padding:3px 8px;border-radius:999px;z-index:2}
+
+.store-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px}
+@media(min-width:560px){.store-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr))}}
+@media(min-width:900px){.store-grid{grid-template-columns:repeat(auto-fill,minmax(180px,1fr))}}
+.store-card{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--card);display:flex;flex-direction:column;cursor:pointer;transition:transform .15s}
+.store-card:active{transform:scale(.98)}
+.store-photo{aspect-ratio:1/1;position:relative;overflow:hidden;background:var(--sage-tint)}
+.store-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.store-info{padding:10px 12px 12px;display:flex;flex-direction:column;gap:4px;flex:1}
+.store-name{font-weight:600;font-size:12.5px;line-height:1.3}
+.store-desc{font-size:10.5px;color:var(--ink-faint);line-height:1.4;flex:1}
+.store-foot{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.store-buy{background:var(--ink);color:#fff;padding:6px 13px;border-radius:999px;font-size:11px;font-weight:600}
+
+.aff-list{padding:14px;display:flex;flex-direction:column;gap:10px}
+.aff-item{display:flex;gap:12px;align-items:flex-start;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px;cursor:pointer}
+.aff-photo{width:84px;height:84px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--sage-tint)}
+.aff-tag{display:inline-flex;align-items:center;gap:4px;background:var(--clay-tint);color:var(--clay);font-size:10px;font-weight:700;padding:3px 9px;border-radius:999px;margin-bottom:4px}
+.aff-name{font-weight:600;font-size:13px}
+.aff-desc{font-size:11px;color:var(--ink-soft);margin-top:2px;line-height:1.4}
+.aff-price{font-weight:700;font-size:12.5px;margin-top:6px}
+.aff-linkbtn{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);display:grid;place-items:center;flex-shrink:0;color:var(--ink-soft)}
+.section-label{padding:18px 14px 6px;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-faint)}
 
 .stat-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 16px 16px}
 .stat-chip{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 8px;text-align:center}
@@ -204,25 +230,18 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 <div class="stat-strip"><div class="stat-chip"><div class="n">280+</div><div class="l">Projects</div></div><div class="stat-chip"><div class="n">4.9★</div><div class="l">Rating</div></div><div class="stat-chip"><div class="n">&lt;1 min</div><div class="l">Avg reply</div></div></div>
 <div class="tabs" id="ptabs"><button class="tab active" data-tab="about">About</button><button class="tab" data-tab="port">Portfolio</button><button class="tab" data-tab="serv">Services</button><button class="tab" data-tab="rev">Reviews</button></div>
 <div style="padding:14px" id="tab-about"><div class="card" style="padding:14px;margin-bottom:10px"><strong>Content categories</strong><div style="font-size:12px;color:var(--ink-soft);margin-top:6px">Travel · Wellness · Skincare · Boho lifestyle · Aesthetic · UGC tutorials · Coffee shops · Beaches</div></div><div class="card" style="padding:14px"><strong>Collaboration info</strong><div style="font-size:12px;color:var(--ink-soft);margin-top:6px">Open for UGC projects, travel collabs, wellness brands. Response within seconds via AI. 280+ projects completed.</div><div style="margin-top:10px;display:flex;gap:8px"><button class="topup-btn" onclick="showView('contact')">Contact me</button><button class="topup-btn ghost" onclick="navigator.clipboard.writeText(location.href);toast('Link copied!')">Share</button></div></div><div style="font-size:10px;color:var(--ink-faint);text-align:center;margin-top:10px">AI-powered creator experience · Responses are AI-generated with Luna's personality</div></div>
-<div style="padding:14px;display:none" id="tab-port"><div class="grid2" style="padding:0">
-<div class="card"><div class="card-vis">🌿</div><div class="card-cap">Boho mornings</div></div>
-<div class="card"><div class="card-vis">🏖️</div><div class="card-cap">Coastal shoot</div></div>
-<div class="card"><div class="card-vis">🧴</div><div class="card-cap">Skincare edit</div></div>
-<div class="card"><div class="card-vis">☕</div><div class="card-cap">Cafe content</div></div>
-<div class="card"><div class="card-vis">🌸</div><div class="card-cap">Spring campaign</div></div>
-<div class="card"><div class="card-vis">✈️</div><div class="card-cap">Travel diary</div></div>
-</div></div>
+<div style="padding:14px;display:none" id="tab-port"><div class="grid2" style="padding:0" id="portfolioGrid"></div></div>
 <div style="padding:14px;display:none" id="tab-serv"><div style="display:grid;gap:10px"><div class="card" style="padding:14px"><div style="font-weight:600">UGC video (30–60s)</div><div style="font-size:11px;color:var(--ink-faint)">1 concept, hook, script + raw + edited</div><div style="margin-top:8px;display:flex;justify-content:space-between"><strong>$195</strong><button class="topup-btn ghost" onclick="showView('contact')">Inquire</button></div></div><div class="card" style="padding:14px"><div style="font-weight:600">Travel + wellness pack</div><div style="font-size:11px;color:var(--ink-faint)">3 videos, aesthetic, 2 revisions</div><div style="margin-top:8px;display:flex;justify-content:space-between"><strong>$480</strong><button class="topup-btn ghost" onclick="showView('contact')">Inquire</button></div></div></div></div>
 <div style="padding:14px;display:none" id="tab-rev"><div class="card" style="padding:14px;margin-bottom:10px">⭐⭐⭐⭐⭐ <strong>Dream UGC!</strong><div style="font-size:12px;color:var(--ink-soft);margin-top:4px">Luna's boho travel content is unmatched. 3 videos in 2 days. — Travel Brand</div></div><div class="card" style="padding:14px;margin-bottom:10px">⭐⭐⭐⭐⭐ <strong>Aesthetic queen</strong><div style="font-size:12px;color:var(--ink-soft);margin-top:4px">Best wellness UGC in California. — Wellness Brand</div></div><div class="card" style="padding:14px">⭐⭐⭐⭐⭐ <strong>Fast &amp; on-brief</strong><div style="font-size:12px;color:var(--ink-soft);margin-top:4px">Turnaround was next-day and captions nailed our tone instantly. — Skincare Brand</div></div></div>
 </div>
 
-<div class="view" id="v-store"><div class="page-head"><h1>Luna's store</h1><div class="page-sub">Recommended products, digital resources &amp; creator essentials.</div></div><div style="padding:14px;display:grid;gap:12px" id="storeGrid"></div></div>
+<div class="view" id="v-store"><div class="page-head"><h1>Luna's store</h1><div class="page-sub">Recommended products, digital resources &amp; creator essentials.</div></div><div class="store-grid" id="storeGrid"></div></div>
 
 <div class="view" id="v-credits"><div class="page-head"><h1>Buy credits</h1><div class="page-sub">Use credits to unlock premium conversations. Pay as you go.</div></div><div class="packages" id="pkgGrid"></div><div id="creditSum" style="display:none;padding:0 14px 14px"><div style="background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px"><div style="display:flex;justify-content:space-between;font-size:12px"><span id="sumC">0 Credits</span><span id="sumP">$0</span></div><div style="display:flex;justify-content:space-between;font-weight:700;margin-top:8px;border-top:1px solid var(--line);padding-top:8px"><span>Total</span><span id="sumT">$0</span></div></div><button class="cta" style="margin-top:12px" id="buyCredBtn">Continue · Secure checkout</button></div></div>
 
 <div class="view" id="v-subscription"><div class="page-head"><h1>Go premium with Luna</h1><div class="page-sub">Unlimited AI conversations, priority, voice, exclusive offers.</div></div><div style="padding:14px;display:grid;gap:12px"><div class="card" style="padding:16px;border:1.5px solid var(--line)" id="subM" onclick="selSub('monthly')"><div style="font-family:'Fraunces',serif;font-size:24px;font-weight:600">$9.99<span style="font-size:12px;color:var(--ink-faint);font-family:'Inter',sans-serif"> /month</span></div><div style="font-weight:600;margin-top:4px">Monthly</div><div style="font-size:11px;color:var(--ink-soft);margin-top:8px">✓ Unlimited chats<br>✓ Priority responses<br>✓ Voice</div></div><div class="card" style="padding:16px;border:1.5px solid var(--ink)" id="subA" onclick="selSub('annual')"><div style="background:var(--ink);color:#fff;font-size:9px;font-weight:700;padding:3px 8px;border-radius:999px;display:inline-block;margin-bottom:6px">MOST POPULAR · SAVE 33%</div><div style="font-family:'Fraunces',serif;font-size:24px;font-weight:600">$79.99<span style="font-size:12px;color:var(--ink-faint);font-family:'Inter',sans-serif"> /year</span></div><div style="font-weight:600;margin-top:4px">Annual</div><div style="font-size:11px;color:var(--ink-soft);margin-top:8px">✓ Everything in Monthly<br>✓ Premium content<br>✓ Store −20%<br>✓ Early access</div></div><button class="cta" onclick="openSub()">Start premium · Secure</button></div></div>
 
-<div class="view" id="v-affiliate"><div class="page-head"><h1>My affiliate</h1><div class="page-sub">Track earnings &amp; referrals.</div></div><div class="statgrid"><div class="stat"><div class="stat-label">BALANCE</div><div class="stat-num">$142.80</div></div><div class="stat"><div class="stat-label">TOTAL</div><div class="stat-num">$510.20</div></div><div class="stat"><div class="stat-label">REFERRALS</div><div class="stat-num">41</div></div><div class="stat"><div class="stat-label">CONVERSION</div><div class="stat-num">9.1%</div></div></div><div class="reflink"><div style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="reflink">https://luna.ugc.ai/ref/jay_48x</div><button class="topup-btn" onclick="navigator.clipboard.writeText(document.getElementById('reflink').textContent);toast('Link copied!')">Copy</button></div><div style="padding:14px"><div style="font-weight:600;font-size:13px;margin-bottom:8px">Recent earnings</div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px"><span>#1041 · 1h ago</span><strong>+$14.20</strong></div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px"><span>#1040 · 4h ago</span><strong>+$9.50</strong></div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px"><span>#1039 · 1d ago</span><strong>+$22.00</strong></div><button class="cta" style="margin-top:16px" onclick="toast('Withdrawal requested · $142.80 in 2 days')">Withdraw earnings</button></div></div>
+<div class="view" id="v-affiliate"><div class="page-head"><h1>My affiliate</h1><div class="page-sub">Beauty products I recommend to my community.</div></div><div class="aff-list" id="affList"></div><div class="section-label">My affiliate earnings</div><div class="statgrid"><div class="stat"><div class="stat-label">BALANCE</div><div class="stat-num">$142.80</div></div><div class="stat"><div class="stat-label">TOTAL</div><div class="stat-num">$510.20</div></div><div class="stat"><div class="stat-label">REFERRALS</div><div class="stat-num">41</div></div><div class="stat"><div class="stat-label">CONVERSION</div><div class="stat-num">9.1%</div></div></div><div class="reflink"><div style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="reflink">https://luna.ugc.ai/ref/jay_48x</div><button class="topup-btn" onclick="navigator.clipboard.writeText(document.getElementById('reflink').textContent);toast('Link copied!')">Copy</button></div><div style="padding:14px"><div style="font-weight:600;font-size:13px;margin-bottom:8px">Recent earnings</div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px"><span>#1041 · 1h ago</span><strong>+$14.20</strong></div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px"><span>#1040 · 4h ago</span><strong>+$9.50</strong></div><div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line);font-size:12px"><span>#1039 · 1d ago</span><strong>+$22.00</strong></div><button class="cta" style="margin-top:16px" onclick="toast('Withdrawal requested · $142.80 in 2 days')">Withdraw earnings</button></div></div>
 
 <div class="view" id="v-contact"><div class="page-head"><h1>Contact Luna</h1><div class="page-sub">Business collaboration, UGC project, or general message.</div></div><div class="form"><div style="display:flex;gap:6px;overflow-x:auto"><button class="tab active">Business Collaboration</button><button class="tab">UGC Project</button></div><input class="input" id="cname" placeholder="Your name"><input class="input" id="cemail" placeholder="you@brand.com"><select class="input" id="csubj"><option>UGC Campaign - Beauty</option><option>UGC Campaign - Travel</option><option>Brand Collaboration</option><option>General Message</option></select><textarea class="input" id="cmsg" style="min-height:90px" placeholder="Tell me about the project, timeline, budget..."></textarea><button class="cta" onclick="sendContact()">Send message · AI-assisted</button></div></div>
 
@@ -299,10 +318,35 @@ let st={
  toggles: JSON.parse(localStorage.getItem('luna_toggles')||'null')||{chatNotif:true,creatorUpdates:true,marketing:false}
 };
 const prods=[
- {id:1,name:'Boho Travel Guide',price:22,icon:'🌿',desc:'Aesthetic travel presets + itinerary templates',long:"Luna's exact boho travel system: 20 Lightroom presets, 15 story templates, 10 location guides for CA & beyond."},
- {id:2,name:'Wellness Content Planner',price:14,icon:'🧘',desc:'30-day wellness & skincare planner',long:'Daily prompts, skincare routine planner, wellness shot list, coffee shop content ideas.'},
- {id:3,name:'Aesthetic Script Pack',price:28,icon:'✨',desc:'30 aesthetic UGC scripts',long:'15 wellness, 10 travel, 5 lifestyle scripts with hook, story, CTA. Boho vibe.'},
- {id:4,name:'Creator Lightroom Pack',price:35,icon:'📸',desc:'Boho presets + Canva templates',long:'12 boho presets, 20 Canva templates, contract, invoice, rate card.'}
+ {id:1,name:'Peptide Barrier Cream',price:21,img:'assets/store/peptide-barrier-cream.jpg',desc:'Rich daily cream for a smooth, comforted-looking complexion'},
+ {id:2,name:'Niacinamide Glow Drops',price:25,img:'assets/store/niacinamide-glow-drops.jpg',desc:'Lightweight drops for a more even, luminous appearance'},
+ {id:3,name:'Mineral Veil Sunscreen',price:18,img:'assets/store/mineral-veil-sunscreen.jpg',desc:'Sheer SPF protection with a soft, weightless finish'},
+ {id:4,name:'Berry Lip Oil',price:14,img:'assets/store/berry-lip-oil.jpg',desc:'Glossy nourishing oil for soft, naturally tinted lips',isNew:true},
+ {id:5,name:'Silk Eye Cream',price:23,img:'assets/store/silk-eye-cream.jpg',desc:'Lightweight eye care for a fresh, rested-looking appearance'},
+ {id:6,name:'Scalp Refresh Tonic',price:11,img:'assets/store/scalp-refresh-tonic.jpg',desc:'Cooling scalp treatment for a clean, balanced feel'},
+ {id:7,name:'Cloud Clay Mask',price:20,img:'assets/store/cloud-clay-mask.jpg',desc:'Gentle purifying mask for smoother, refreshed-looking skin'},
+ {id:8,name:'Milky Cleansing Balm',price:17,img:'assets/store/milky-cleansing-balm.jpg',desc:'Melting cleanser that lifts makeup and daily buildup'},
+ {id:9,name:'Coconut Body Butter',price:26,img:'assets/store/coconut-body-butter.jpg',desc:'Rich body moisturizer for velvety-soft, nourished skin'},
+ {id:10,name:'Mini Beauty Ritual Set',price:29,img:'assets/store/mini-beauty-ritual-set.jpg',desc:'A compact collection of everyday skincare favorites'}
+];
+const affProds=[
+ {name:'Peptide Plumping Lip Oil',price:17,img:'assets/affiliate/peptide-plumping-lip-oil.jpg',desc:'Glossy, nourishing lip care with a soft finish'},
+ {name:'Cream Blush Stick',price:21,img:'assets/affiliate/cream-blush-stick.jpg',desc:'Easy-to-blend color for a natural everyday look'},
+ {name:'Hydrating Hair Oil',price:19,img:'assets/affiliate/hydrating-hair-oil.jpg',desc:'Lightweight oil for smooth, glossy-looking hair'},
+ {name:'Caffeine Under-Eye Serum',price:15,img:'assets/affiliate/caffeine-under-eye-serum.jpg',desc:'Refreshing eye care for a brighter-looking appearance'},
+ {name:'Satin Heatless Curling Set',price:26,img:'assets/affiliate/satin-heatless-curling-set.jpg',desc:'Create soft curls without using heat'}
+];
+const portfolioItems=[
+ {img:'assets/portfolio/boho-mornings.jpg',cap:'Boho mornings'},
+ {img:'assets/portfolio/coastal-shoot.jpg',cap:'Coastal shoot'},
+ {img:'assets/portfolio/skincare-edit.jpg',cap:'Skincare edit'},
+ {img:'assets/portfolio/cafe-content.jpg',cap:'Cafe content'},
+ {img:'assets/portfolio/spring-campaign.jpg',cap:'Spring campaign'},
+ {img:'assets/portfolio/travel-diary.jpg',cap:'Travel diary'},
+ {img:'assets/portfolio/healthy-habits.jpg',cap:'Healthy habits'},
+ {img:'assets/portfolio/relax-routine.jpg',cap:'Relax routine'},
+ {img:'assets/portfolio/work-with-me.jpg',cap:'Work with me'},
+ {img:'assets/portfolio/fragrance-favorite.jpg',cap:'Fragrance favorite'}
 ];
 const pkgs=[
  {id:1,c:100,p:4.99,pop:false},
@@ -426,15 +470,37 @@ document.getElementById('ptabs').addEventListener('click',e=>{
 function renderStore(){
  let g=document.getElementById('storeGrid');g.innerHTML='';
  prods.forEach(p=>{
-  let d=document.createElement('div');d.className='card';d.innerHTML='<div class="card-vis">'+p.icon+'</div><div style="padding:12px"><div style="font-weight:600;font-size:13px">'+p.name+'</div><div style="font-size:11px;color:var(--ink-faint);margin-top:4px">'+p.desc+'</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px"><strong>$'+p.price+'</strong><button style="background:var(--ink);color:#fff;padding:6px 12px;border-radius:999px;font-size:11px;font-weight:600">Buy</button></div></div>';
+  let d=document.createElement('div');d.className='store-card';
+  d.innerHTML='<div class="store-photo">'+(p.isNew?'<span class="badge-new">NEW</span>':'')+'<img src="'+p.img+'" alt="'+escapeHtml(p.name)+'" loading="lazy"></div>'
+   +'<div class="store-info"><div class="store-name">'+escapeHtml(p.name)+'</div><div class="store-desc">'+escapeHtml(p.desc)+'</div>'
+   +'<div class="store-foot"><strong>$'+p.price+'</strong><span class="store-buy">Buy</span></div></div>';
   d.onclick=()=>openProd(p.id);g.appendChild(d);
  });
 }
 function openProd(id){
  let p=prods.find(x=>x.id===id);
  document.getElementById('pTitle').textContent=p.name;
- document.getElementById('pBody').innerHTML='<div style="height:120px;background:var(--sage-tint);border-radius:12px;display:grid;place-items:center;font-size:36px;margin-bottom:12px">'+p.icon+'</div><div style="font-size:12px;line-height:1.6;color:var(--ink-soft)">'+p.long+'</div><div style="display:flex;justify-content:space-between;margin-top:12px"><strong style="font-size:18px">$'+p.price+'</strong><span style="font-size:10px;color:var(--ink-faint)">Secure · Instant</span></div><button class="cta" style="margin-top:12px" onclick="closeM(\'pModal\');buyFlow(\''+p.name.replace(/'/g,"\\'")+'\','+p.price+',()=>toast(\'Purchase complete! Added to your library\'))">Buy now · $'+p.price+'</button>';
+ document.getElementById('pBody').innerHTML='<div style="border-radius:12px;overflow:hidden;margin-bottom:12px;aspect-ratio:1/1"><img src="'+p.img+'" alt="'+escapeHtml(p.name)+'" style="width:100%;height:100%;object-fit:cover;display:block"></div><div style="font-size:12px;line-height:1.6;color:var(--ink-soft)">'+escapeHtml(p.desc)+'</div><div style="display:flex;justify-content:space-between;margin-top:12px"><strong style="font-size:18px">$'+p.price+'</strong><span style="font-size:10px;color:var(--ink-faint)">Secure · Instant</span></div><button class="cta" style="margin-top:12px" onclick="closeM(\'pModal\');buyFlow(\''+p.name.replace(/'/g,"\\'")+'\','+p.price+',()=>toast(\'Purchase complete! Added to your library\'))">Buy now · $'+p.price+'</button>';
  document.getElementById('pModal').classList.add('open');
+}
+function renderPortfolio(){
+ let g=document.getElementById('portfolioGrid');if(!g)return;g.innerHTML='';
+ portfolioItems.forEach(item=>{
+  let d=document.createElement('div');d.className='card';
+  d.innerHTML='<div class="card-vis"><img src="'+item.img+'" alt="'+escapeHtml(item.cap)+'" loading="lazy"></div><div class="card-cap">'+escapeHtml(item.cap)+'</div>';
+  g.appendChild(d);
+ });
+}
+function renderAffiliate(){
+ let g=document.getElementById('affList');if(!g)return;g.innerHTML='';
+ affProds.forEach(p=>{
+  let d=document.createElement('div');d.className='aff-item';
+  d.innerHTML='<img class="aff-photo" src="'+p.img+'" alt="'+escapeHtml(p.name)+'" loading="lazy">'
+   +'<div style="flex:1"><span class="aff-tag">✦ Luna recommends</span><div class="aff-name">'+escapeHtml(p.name)+'</div><div class="aff-desc">'+escapeHtml(p.desc)+'</div><div class="aff-price">$'+p.price+'</div></div>'
+   +'<div class="aff-linkbtn">↗</div>';
+  d.onclick=()=>toast('Opens Luna\'s affiliate link (demo)');
+  g.appendChild(d);
+ });
 }
 function renderPkgs(){
  let g=document.getElementById('pkgGrid');g.innerHTML='';
@@ -508,7 +574,7 @@ function buyFlow(desc,price,onSuccess){
 
 // init toggles UI from saved state
 document.querySelectorAll('.toggle').forEach(t=>{let k=t.dataset.key;if(st.toggles[k]) t.classList.add('on'); else t.classList.remove('on');});
-paintAvatars();renderStore();renderPkgs();updCred();initMsgs();showView(st.view);
+paintAvatars();renderStore();renderPortfolio();renderAffiliate();renderPkgs();updCred();initMsgs();showView(st.view);
 document.getElementById('fileIn').addEventListener('change',e=>{let f=e.target.files[0];if(f) toast('Attachment: '+f.name+' (demo)');});
 </script>
 </body>
