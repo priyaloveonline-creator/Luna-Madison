@@ -1,0 +1,8 @@
+# Copy this file's contents into Vercel Project Settings -> Environment Variables.
+# Never commit a real key to GitHub — this file is just a template.
+
+# Get a key at https://openrouter.ai/keys
+OPENROUTER_API_KEY=sk-or-v1-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Optional — your live Vercel URL, used only as a courtesy header to OpenRouter.
+SITE_URL=https://your-project.vercel.app
