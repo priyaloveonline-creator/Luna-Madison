@@ -117,9 +117,16 @@ module.exports = async (req, res) => {
   }
 
   let incoming = [];
+  let image = null;
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
     incoming = Array.isArray(body?.messages) ? body.messages : [];
+    if (typeof body?.image === 'string' && body.image.startsWith('data:image/')) {
+      // Sanity cap so nobody can post an oversized payload through this endpoint.
+      if (body.image.length <= 8_000_000) {
+        image = body.image;
+      }
+    }
   } catch (e) {
     res.status(400).json({ error: 'Invalid request body.' });
     return;
@@ -131,7 +138,25 @@ module.exports = async (req, res) => {
     content: String(m.content || '').slice(0, 2000),
   }));
 
+  // If an image came with this turn, attach it to the last user message as a
+  // multimodal content block and switch to a vision-capable model for this call only.
+  // Text-only chat keeps using the lighter model above.
+  const usingVision = !!image;
+  if (usingVision) {
+    const lastIdx = trimmedHistory.length - 1;
+    if (lastIdx >= 0 && trimmedHistory[lastIdx].role === 'user') {
+      trimmedHistory[lastIdx] = {
+        role: 'user',
+        content: [
+          { type: 'text', text: trimmedHistory[lastIdx].content || 'What do you see in this photo?' },
+          { type: 'image_url', image_url: { url: image } },
+        ],
+      };
+    }
+  }
+
   const messages = [{ role: 'system', content: LUNA_SYSTEM_PROMPT }, ...trimmedHistory];
+  const model = usingVision ? 'openai/gpt-5.1' : 'openai/gpt-oss-safeguard-20b';
 
   try {
     const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
@@ -145,10 +170,10 @@ module.exports = async (req, res) => {
         'X-Title': 'Luna UGC Assistant',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-oss-safeguard-20b',
+        model,
         messages,
         temperature: 0.9,
-        max_tokens: 400,
+        max_tokens: usingVision ? 500 : 400,
       }),
     });
 
