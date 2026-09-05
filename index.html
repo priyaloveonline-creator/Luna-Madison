@@ -276,24 +276,27 @@ button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-vis
 <div style="position:relative">
 <div class="emojiBox" id="emojiBox"><span onclick="addEmoji('😊')">😊</span><span onclick="addEmoji('🔥')">🔥</span><span onclick="addEmoji('✨')">✨</span><span onclick="addEmoji('💡')">💡</span><span onclick="addEmoji('🧴')">🧴</span><span onclick="addEmoji('✈️')">✈️</span><span onclick="addEmoji('❤️')">❤️</span><span onclick="addEmoji('👋')">👋</span><span onclick="addEmoji('💰')">💰</span><span onclick="addEmoji('🎥')">🎥</span><span onclick="addEmoji('📸')">📸</span><span onclick="addEmoji('🚀')">🚀</span><span onclick="addEmoji('🌸')">🌸</span><span onclick="addEmoji('☕')">☕</span></div>
 </div>
+<div id="pendingAttach" style="display:none;align-items:center;gap:8px;padding:6px 8px;margin-bottom:6px;background:var(--card);border:1px solid var(--line);border-radius:12px">
+<img id="pendingAttachThumb" style="width:34px;height:34px;border-radius:8px;object-fit:cover;flex-shrink:0">
+<span id="pendingAttachName" style="font-size:11px;color:var(--ink-soft);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">image.jpg</span>
+<button onclick="clearAttachment()" style="font-size:13px;color:var(--ink-faint);width:22px;height:22px;flex-shrink:0">✕</button>
+</div>
 <div class="composer"><div class="input-wrap"><button class="icon" id="eBtn">😊</button><input id="inp" placeholder="Message Luna..." autocomplete="off"><button class="icon" onclick="document.getElementById('fileIn').click()">📎</button></div><button class="mic" id="micBtn">🎤</button><button class="send" id="sendBtn" style="display:none">➤</button></div>
 </div>
 
 <div class="modalbg" id="pModal"><div class="modalbox"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3 id="pTitle">Product</h3><button onclick="closeM('pModal')" style="width:28px;height:28px;border-radius:8px;background:var(--card)">✕</button></div><div id="pBody"></div></div></div>
 <div class="modalbg" id="cModal"><div class="modalbox"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h3>Confirm purchase</h3><button onclick="closeM('cModal')" style="width:28px;height:28px;border-radius:8px;background:var(--card)">✕</button></div><div id="cBody"></div></div></div>
 <div class="toast" id="toast"></div>
-<input type="file" id="fileIn" style="display:none">
+<input type="file" id="fileIn" accept="image/*" style="display:none">
 
 <script>
 /* =========================================================
-   CONFIG — fill these in before going live
+   CONFIG — loaded from the server so nothing has to be hand-edited here.
+   Vercel Project Settings -> Environment Variables:
+     PAYPAL_CLIENT_ID   (your PayPal REST app's Client ID)
+     OPENROUTER_API_KEY (used by /api/chat, never exposed to the browser)
    ========================================================= */
-// Get one at https://developer.paypal.com/dashboard/applications (create a REST app).
-// Leave as-is to keep checkout in demo mode (no real charges).
-const PAYPAL_CLIENT_ID = "YOUR_PAYPAL_CLIENT_ID";
-// The chat itself calls /api/chat (Vercel Serverless Function) — your OpenRouter
-// key lives ONLY in Vercel's environment variables, never in this file.
-/* ========================================================= */
+let configPromise = fetch('/api/config').then(r=>r.json()).catch(()=>({paypalClientId:null}));
 
 // ---------- Avatar (Luna's AI-generated profile photo) ----------
 function avatarImg(){
@@ -354,7 +357,7 @@ const pkgs=[
  {id:3,c:1000,p:24.99,pop:false},
  {id:4,c:5000,p:79.99,pop:false}
 ];
-function save(){localStorage.setItem('luna_credits',st.credits);localStorage.setItem('luna_msgs',JSON.stringify(st.msgs));localStorage.setItem('luna_name',st.name);localStorage.setItem('luna_view',st.view);localStorage.setItem('luna_toggles',JSON.stringify(st.toggles));}
+function save(){try{localStorage.setItem('luna_credits',st.credits);localStorage.setItem('luna_msgs',JSON.stringify(st.msgs));localStorage.setItem('luna_name',st.name);localStorage.setItem('luna_view',st.view);localStorage.setItem('luna_toggles',JSON.stringify(st.toggles));}catch(e){console.warn('Storage full, chat history may not persist',e);}}
 function toast(m){let t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800);}
 function updCred(){document.getElementById('ccount').textContent=st.credits;let d=document.getElementById('ccountDesk');if(d)d.textContent=st.credits;let d2=document.getElementById('ccountDesk2');if(d2)d2.textContent=st.credits;}
 function showView(v){
@@ -374,8 +377,9 @@ function renderMsgs(){
  st.msgs.forEach(m=>{
   let row=document.createElement('div');row.className='msg-row '+m.s;
   let content=escapeHtml(m.t).replace(/\n/g,'<br>');
-  if(m.s==='greta'){row.innerHTML='<div class="msg-avatar avatar-slot" data-size="26"></div><div class="bubble">'+content+'<div class="time">'+m.tm+'</div></div>';}
-  else{row.innerHTML='<div class="bubble">'+content+'<div class="time">'+m.tm+' ✓✓</div></div>';}
+  let imgHtml = m.img ? '<img src="'+m.img+'" style="max-width:200px;width:100%;border-radius:10px;display:block;margin-bottom:6px">' : '';
+  if(m.s==='greta'){row.innerHTML='<div class="msg-avatar avatar-slot" data-size="26"></div><div class="bubble">'+imgHtml+content+'<div class="time">'+m.tm+'</div></div>';}
+  else{row.innerHTML='<div class="bubble">'+imgHtml+content+'<div class="time">'+m.tm+' ✓✓</div></div>';}
   c.appendChild(row);
  });
  paintAvatars();
@@ -391,7 +395,7 @@ function initMsgs(){
  }
  renderMsgs();
 }
-function addMsg(t,s){st.msgs.push({s:s,t:t,tm:now()});save();renderMsgs();}
+function addMsg(t,s,img){st.msgs.push({s:s,t:t,tm:now(),img:img||null});save();renderMsgs();}
 function showTyping(){
  let c=document.getElementById('msgs');let d=document.createElement('div');d.id='typing';d.className='msg-row greta';
  d.innerHTML='<div class="msg-avatar avatar-slot" data-size="26"></div><div class="typing"><div class="dotty"></div><div class="dotty" style="animation-delay:.2s"></div><div class="dotty" style="animation-delay:.4s"></div></div>';
@@ -405,11 +409,13 @@ function setComposerBusy(busy){
 }
 
 // ---------- Real AI call (via /api/chat -> OpenRouter, key stays server-side) ----------
-async function callLuna(history){
+async function callLuna(history,image){
+ const payload = {messages:history};
+ if(image) payload.image = image;
  const res = await fetch('/api/chat',{
   method:'POST',
   headers:{'Content-Type':'application/json'},
-  body: JSON.stringify({messages:history})
+  body: JSON.stringify(payload)
  });
  if(!res.ok){
   let msg='Request failed';
@@ -420,15 +426,25 @@ async function callLuna(history){
  return data.reply;
 }
 
+let pendingImage = null;
+function clearAttachment(){
+ pendingImage=null;
+ document.getElementById('pendingAttach').style.display='none';
+ document.getElementById('pendingAttachThumb').src='';
+ toggleSend();
+}
+
 async function sendMsg(t){
- if(!t.trim()) return;
+ if(!t.trim() && !pendingImage) return;
  if(st.credits<=0){ toast('Out of credits — top up to keep chatting'); showView('credits'); return; }
- addMsg(t,'user');
+ let imgToSend = pendingImage;
+ addMsg(t || 'Sent a photo','user',imgToSend);
+ clearAttachment();
  st.credits=Math.max(0,st.credits-1);updCred();save();
  showTyping();setComposerBusy(true);
  let history = st.msgs.slice(-16).map(m=>({role:m.s==='user'?'user':'assistant',content:m.t}));
  try{
-  let reply = await callLuna(history);
+  let reply = await callLuna(history,imgToSend);
   hideTyping();
   addMsg(reply,'greta');
  }catch(err){
@@ -442,7 +458,7 @@ async function sendMsg(t){
 }
 function qs(txt){ showView('chat'); sendMsg(txt); }
 function addEmoji(e){let i=document.getElementById('inp');i.value+=e;i.focus();}
-function toggleSend(){let inp=document.getElementById('inp');let mic=document.getElementById('micBtn');let send=document.getElementById('sendBtn');if(inp.value.trim().length>0){mic.style.display='none';send.style.display='grid';}else{mic.style.display='grid';send.style.display='none';}}
+function toggleSend(){let inp=document.getElementById('inp');let mic=document.getElementById('micBtn');let send=document.getElementById('sendBtn');if(inp.value.trim().length>0||pendingImage){mic.style.display='none';send.style.display='grid';}else{mic.style.display='grid';send.style.display='none';}}
 function clearChat(){if(confirm('Clear chat?')){st.msgs=[];save();initMsgs();toast('Chat cleared');}}
 function sendContact(){let n=document.getElementById('cname').value;let e=document.getElementById('cemail').value;let m=document.getElementById('cmsg').value;if(!n||!e||!m){toast('Fill all fields');return;}toast('Message sent! Luna replies via AI');document.getElementById('cname').value='';document.getElementById('cemail').value='';document.getElementById('cmsg').value='';}
 function flipToggle(el){let key=el.dataset.key;st.toggles[key]=!st.toggles[key];el.classList.toggle('on',st.toggles[key]);save();}
@@ -537,29 +553,31 @@ function openSub(){
 
 // ---------- Checkout: real PayPal Buttons if configured, demo pay button otherwise ----------
 let paypalReady=false, paypalLoading=false;
-function loadPaypalSdk(cb){
+function loadPaypalSdk(clientId,cb){
  if(paypalReady){cb();return;}
- if(paypalLoading){setTimeout(()=>loadPaypalSdk(cb),200);return;}
+ if(paypalLoading){setTimeout(()=>loadPaypalSdk(clientId,cb),200);return;}
  paypalLoading=true;
  let s=document.createElement('script');
- s.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(PAYPAL_CLIENT_ID)+'&currency=USD';
+ s.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(clientId)+'&currency=USD';
  s.onload=()=>{paypalReady=true;paypalLoading=false;cb();};
  s.onerror=()=>{paypalLoading=false;toast('PayPal failed to load — check your Client ID');};
  document.head.appendChild(s);
 }
-function buyFlow(desc,price,onSuccess){
- let usingReal = PAYPAL_CLIENT_ID && PAYPAL_CLIENT_ID.indexOf('YOUR_')!==0;
+async function buyFlow(desc,price,onSuccess){
+ let cfg = await configPromise;
+ let clientId = cfg && cfg.paypalClientId;
+ let usingReal = !!clientId;
  let body='<div style="font-size:12px;color:var(--ink-soft);line-height:1.6">'+escapeHtml(desc)+'</div>'
   +'<div style="background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px;margin:12px 0;display:flex;justify-content:space-between;font-weight:700"><span>Total</span><span>$'+price.toFixed(2)+'</span></div>';
  if(usingReal){
   body+='<div id="paypal-container"></div><div style="font-size:9px;color:var(--ink-faint);text-align:center;margin-top:8px">Secure checkout via PayPal</div>';
  }else{
-  body+='<button class="cta" id="confirmPay">Pay $'+price.toFixed(2)+' · Demo checkout</button><div style="font-size:9px;color:var(--ink-faint);text-align:center;margin-top:8px">Demo mode — add your PayPal Client ID at the top of the script to accept real payments</div>';
+  body+='<button class="cta" id="confirmPay">Pay $'+price.toFixed(2)+' · Demo checkout</button><div style="font-size:9px;color:var(--ink-faint);text-align:center;margin-top:8px">Demo mode — add PAYPAL_CLIENT_ID in Vercel Environment Variables to accept real payments</div>';
  }
  document.getElementById('cBody').innerHTML=body;
  document.getElementById('cModal').classList.add('open');
  if(usingReal){
-  loadPaypalSdk(()=>{
+  loadPaypalSdk(clientId,()=>{
    paypal.Buttons({
     style:{layout:'vertical',color:'black',shape:'pill',label:'paypal'},
     createOrder:(data,actions)=>actions.order.create({purchase_units:[{amount:{value:price.toFixed(2)}}]}),
@@ -575,7 +593,33 @@ function buyFlow(desc,price,onSuccess){
 // init toggles UI from saved state
 document.querySelectorAll('.toggle').forEach(t=>{let k=t.dataset.key;if(st.toggles[k]) t.classList.add('on'); else t.classList.remove('on');});
 paintAvatars();renderStore();renderPortfolio();renderAffiliate();renderPkgs();updCred();initMsgs();showView(st.view);
-document.getElementById('fileIn').addEventListener('change',e=>{let f=e.target.files[0];if(f) toast('Attachment: '+f.name+' (demo)');});
+document.getElementById('fileIn').addEventListener('change',e=>{
+ let f=e.target.files[0];
+ e.target.value='';
+ if(!f) return;
+ if(!f.type.startsWith('image/')){ toast('Please attach an image'); return; }
+ let reader=new FileReader();
+ reader.onload=(ev)=>{
+  let img=new Image();
+  img.onload=()=>{
+   let maxDim=1024, w=img.width, h=img.height;
+   if(w>h && w>maxDim){ h=Math.round(h*maxDim/w); w=maxDim; }
+   else if(h>maxDim){ w=Math.round(w*maxDim/h); h=maxDim; }
+   let canvas=document.createElement('canvas');
+   canvas.width=w;canvas.height=h;
+   canvas.getContext('2d').drawImage(img,0,0,w,h);
+   pendingImage=canvas.toDataURL('image/jpeg',0.82);
+   document.getElementById('pendingAttachThumb').src=pendingImage;
+   document.getElementById('pendingAttachName').textContent=f.name;
+   document.getElementById('pendingAttach').style.display='flex';
+   toggleSend();
+   document.getElementById('inp').focus();
+  };
+  img.onerror=()=>toast('Could not read that image');
+  img.src=ev.target.result;
+ };
+ reader.readAsDataURL(f);
+});
 </script>
 </body>
 </html>
