@@ -156,10 +156,15 @@ module.exports = async (req, res) => {
   }
 
   const messages = [{ role: 'system', content: LUNA_SYSTEM_PROMPT }, ...trimmedHistory];
-  const model = usingVision ? 'openai/gpt-5.1' : 'openai/gpt-oss-safeguard-20b';
 
-  try {
-    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  // Primary model + an automatic fallback. If openai/gpt-oss-safeguard-20b (served via
+  // Groq's shared free pool) gets upstream-rate-limited — which happens under load —OpenRouter
+  // itself retries the SAME request against the fallback, in one round trip, before giving up.
+  // See: https://openrouter.ai/docs/guides/routing/model-fallbacks
+  const fallbackModels = usingVision ? ['openai/gpt-5.1', 'openrouter/free'] : ['openai/gpt-oss-safeguard-20b', 'openrouter/free'];
+
+  async function callOpenRouter() {
+    return fetch('https://openrouter.ai/api/v1/chat/completions', {
       method: 'POST',
       headers: {
         Authorization: `Bearer ${apiKey}`,
@@ -170,17 +175,32 @@ module.exports = async (req, res) => {
         'X-Title': 'Luna UGC Assistant',
       },
       body: JSON.stringify({
-        model,
+        models: fallbackModels,
         messages,
         temperature: 0.9,
         max_tokens: usingVision ? 500 : 400,
       }),
     });
+  }
+
+  try {
+    let response = await callOpenRouter();
+
+    // Belt-and-suspenders: if even the fallback chain returns a transient error
+    // (rare — a genuine network blip between Vercel and OpenRouter), retry once.
+    if (!response.ok && [429, 502, 503, 504].includes(response.status)) {
+      await new Promise((r) => setTimeout(r, 700));
+      response = await callOpenRouter();
+    }
 
     if (!response.ok) {
       const errText = await response.text();
       console.error('OpenRouter error', response.status, errText);
-      res.status(502).json({ error: 'The model request failed. Check your OpenRouter key, credit balance, and model availability.' });
+      const friendly =
+        response.status === 429
+          ? 'The model provider is rate-limited right now. This usually clears in under a minute — try again shortly.'
+          : 'The model request failed. Check your OpenRouter key, credit balance, and model availability.';
+      res.status(502).json({ error: friendly });
       return;
     }
 
